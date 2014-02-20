@@ -31,6 +31,16 @@ var MyLayer = cc.Layer.extend({
 	_blade:null,
 	_enemies:[],
 	_bodies:[],
+	_score:0,
+	_bestScore:0,
+	_lblScoreTitle:null,
+	_lblScore:null,
+	_lblBestTitle:null,
+	_lblBest:null,
+	_lblTutorial:null,
+	_lblTheme:null,
+	_maxEnemy:3,
+	_playTime:0,
     init:function () {
         this._super();
         var size = cc.Director.getInstance().getWinSize();
@@ -39,14 +49,45 @@ var MyLayer = cc.Layer.extend({
 		this._bg=new Background();
 		this.addChild(this._bg,g_Background);
 		
-        
-		
 		//init start button
 		var start1 = cc.Sprite.create(s_start_button);
         var start2 = cc.Sprite.create(s_start_button);
 		this._btnStart=cc.MenuItemSprite.create(start1, start2, this.startGame, this);
 		var infoMenu = cc.Menu.create(this._btnStart);
 		this.addChild(infoMenu, g_Menu);
+		
+		//init score
+		this._lblScoreTitle=cc.LabelTTF.create("SCORE:", "Arial", 32);
+		this._lblScoreTitle.setAnchorPoint(cc.p(0,1));
+		this._lblScoreTitle.setPosition(cc.p(10,768));
+		this.addChild(this._lblScoreTitle,g_Label);
+		
+		this._lblBestTitle=cc.LabelTTF.create("BEST:", "Arial", 32);
+		this._lblBestTitle.setAnchorPoint(cc.p(0,1));
+		this._lblBestTitle.setPosition(cc.p(10,728));
+		this.addChild(this._lblBestTitle,g_Label);
+		
+		this._lblScore=cc.LabelTTF.create("0", "Arial", 32);
+		this._lblScore.setAnchorPoint(cc.p(1,1));
+		this._lblScore.setPosition(cc.p(200,768));
+		this.addChild(this._lblScore,g_Label);
+		
+		this._lblBest=cc.LabelTTF.create("0", "Arial", 32);
+		this._lblBest.setAnchorPoint(cc.p(1,1));
+		this._lblBest.setPosition(cc.p(200,728));
+		this.addChild(this._lblBest,g_Label);
+		
+		//init tutorial label
+		this._lblTutorial=cc.LabelTTF.create("A:LEFT D:RIGHT J:ATTACCK K:JUMP","Arial",32);
+		this._lblTutorial.setAnchorPoint(0.5,1);
+		this._lblTutorial.setPosition(512,300);
+		this.addChild(this._lblTutorial,g_Label);
+		
+		//init theme
+		this._lblTheme=cc.LabelTTF.create("CAPTAIN OF GUERILLA","Arial",64);
+		this._lblTheme.setAnchorPoint(0.5,1);
+		this._lblTheme.setPosition(512,600);
+		this.addChild(this._lblTheme,g_Label);
 		
 		//enable key press
 		this.setKeyboardEnabled(true);
@@ -104,6 +145,18 @@ var MyLayer = cc.Layer.extend({
 		//remove button
 		this._isRunning=true;
 		this._btnStart.setVisible(false);
+		
+		//remove tutorial and theme
+		this._lblTutorial.setVisible(false);
+		this._lblTheme.setVisible(false);
+		
+		//init Score
+		this._score=0;
+		this._lblScore.setString("0");
+		
+		//init play time and max enemy
+		this._playTime=0;
+		this._maxEnemy=3;
 	},
 	//RUNNING!
 	update:function(dt){
@@ -112,11 +165,26 @@ var MyLayer = cc.Layer.extend({
 			return;
 		}
 		
+		//calculation play time
+		if(this._playTime<=12000){
+			this._playTime++;
+		}
+		
+		//add the amount of enemy according to the playtime
+		if(this._playTime%600==0){
+			this._maxEnemy++;
+		}
+		
 		//generate new enemy
-		if(this._enemies.length<10){
+		if(this._enemies.length<this._maxEnemy){
 			//enemy on the ground
-			if(Math.random()<0.01){
-				var enemy=new Enemy();
+			var rand1=Math.random();
+			if(rand1<0.01){
+				var enemy=new Enemy(1);
+				this.addChild(enemy,g_Enemy);
+				this._enemies.push(enemy);
+			}else if(rand1<0.02){
+				var enemy=new Enemy(2);
 				this.addChild(enemy,g_Enemy);
 				this._enemies.push(enemy);
 			}
@@ -124,7 +192,11 @@ var MyLayer = cc.Layer.extend({
 
 		//enemies' movement
 		for(x in this._enemies){
-			this._enemies[x].update();
+			if(this._enemies[x]._mode==1){
+				this._enemies[x].action1();
+			}else if(this._enemies[x]._mode==2){
+				this._enemies[x].action2(this._hero,this._bg);
+			}
 		}
 	
 		//hero's movement
@@ -152,6 +224,9 @@ var MyLayer = cc.Layer.extend({
 					//remove enemy
 					this.removeChild(this._enemies[x]);
 					this._enemies.splice(x,1);
+					
+					//add score
+					this.addScore();
 				}
 			}
 		}
@@ -159,12 +234,14 @@ var MyLayer = cc.Layer.extend({
 		//bodies' falling
 		for(x in this._bodies){
 			var body=this._bodies[x];
-			body.update();
-			//if falled on the ground, remove the body
-			if(body._angle>90){
-				this.removeChild(body);
-				this._bodies.splice(x,1);
-			}
+			body.update(this._bg);
+		}
+		
+		//if the bodies on the ground are too many, remove some
+		if(this._bodies.length>20){
+			this.removeChild(this._bodies[0]);
+			this.removeChild(this._bodies[1]);
+			this._bodies.splice(0,2);
 		}
 		
 		//check is hero killed
@@ -182,7 +259,17 @@ var MyLayer = cc.Layer.extend({
 		if(this._hero._fallingAngle>=90){
 			this._isRunning=false;
 			this._btnStart.setVisible(true);
+			this._lblTutorial.setVisible(true);
+			this._lblTheme.setVisible(true);
 		}
+	},
+	addScore:function(){
+		this._score++;
+		if(this._score>this._bestScore){
+			this._bestScore=this._score;
+			this._lblBest.setString(this._bestScore.toString());
+		}
+		this._lblScore.setString(this._score.toString());
 	}
 });
 

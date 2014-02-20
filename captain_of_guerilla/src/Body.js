@@ -21,12 +21,21 @@ var Body=cc.Sprite.extend({
 		}
 		this.setAnchorPoint(cc.p(0.5,0));
 	},
-	update:function(){
-		this._angle+=3;
-		var angle=this._angle;
-		if(this._fallDirection==0){
-			angle=-angle;
+	update:function(bg){
+		//falling
+		if(this._angle<90){
+			this._angle+=3;
+			var angle=this._angle;
+			if(this._fallDirection==0){
+				angle=-angle;
+			}
+			this.setRotation(angle);
 		}
-		this.setRotation(angle);
+		
+		//dropping
+		var pos=this.getPosition();
+		if(bg.moveable(pos,1,1,g_GoDown)){
+			this.setPosition(pos.x,pos.y-g_EnemySpeed);
+		}
 	}
 });

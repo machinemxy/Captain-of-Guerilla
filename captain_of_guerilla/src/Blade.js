@@ -47,6 +47,5 @@ var Blade=cc.Sprite.extend({
 	changePic:function(pic){
 		this.initWithFile(pic);
 		this.setAnchorPoint(cc.p(0.5,0));
-		this.setScale(1.5);
 	}
 });
