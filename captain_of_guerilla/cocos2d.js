@@ -45,7 +45,8 @@
 			'src/Background.js',
 			'src/Blade.js',
 			'src/Enemy.js',
-			'src/Body.js'
+			'src/Body.js',
+			'src/Bullet.js'
         ]
     };
 

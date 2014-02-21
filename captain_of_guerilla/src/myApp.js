@@ -31,6 +31,7 @@ var MyLayer = cc.Layer.extend({
 	_blade:null,
 	_enemies:[],
 	_bodies:[],
+	_bullets:[],
 	_score:0,
 	_bestScore:0,
 	_lblScoreTitle:null,
@@ -129,6 +130,14 @@ var MyLayer = cc.Layer.extend({
 			}
 			this._bodies=[];
 		}
+		
+		//init bullets
+		if(this._bullets.length!=0){
+			for(x in this._bullets){
+				this.removeChild(this._bullets[x]);
+			}
+			this._bullets=[];
+		}
 	
 		//init hero
 		if(this._hero!=null){
@@ -196,6 +205,20 @@ var MyLayer = cc.Layer.extend({
 				this._enemies[x].action1();
 			}else if(this._enemies[x]._mode==2){
 				this._enemies[x].action2(this._hero,this._bg);
+				//fire
+				if(this._enemies[x].getPosition().y==22*32){
+					this._enemies[x].fire(this._hero,this._bullets);
+					this.addChild(this._bullets[this._bullets.length-1],g_Bullet);
+				}
+			}
+		}
+		
+		//bullets' movement
+		for(x in this._bullets){
+			this._bullets[x].update();
+			if(this._bg.isBlock(this._bullets[x].getPosition())){
+				this.removeChild(this._bullets[x]);
+				this._bullets.splice(x,1);
 			}
 		}
 	
@@ -245,7 +268,7 @@ var MyLayer = cc.Layer.extend({
 		}
 		
 		//check is hero killed
-		if(this._hero._alive&&this._hero.isKilled(this._enemies)){
+		if(this._hero._alive&&this._hero.isKilled(this._enemies,this._bullets)){
 			this._hero._alive=false;
 			//remove blade
 			this.removeChild(this._hero._blade);

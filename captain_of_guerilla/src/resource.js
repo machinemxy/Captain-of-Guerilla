@@ -19,6 +19,7 @@ var s_body_right_2="res/body_right_2.png";
 var s_start_button="res/start_button.png";
 var s_enemy_left_fall="res/enemy_left_fall.png";
 var s_enemy_right_fall="res/enemy_right_fall.png";
+var s_bullet="res/bullet.png";
 
 var g_resources = [
     //image
@@ -42,7 +43,8 @@ var g_resources = [
 	{src:s_body_right_2},
 	{src:s_start_button},
 	{src:s_enemy_left_fall},
-	{src:s_enemy_right_fall}
+	{src:s_enemy_right_fall},
+	{src:s_bullet}
     //plist
 
     //fnt

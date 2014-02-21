@@ -70,10 +70,10 @@ var Enemy=cc.Sprite.extend({
 	},
 	action2:function(hero,bg){
 		var pos=this.getPosition();
+		var heroHeartPos=cc.pAdd(hero.getPosition(),cc.p(16,32));
 	
 		//change face
-		var heroX=hero.getPosition().x+16;
-		if(heroX>=pos.x){
+		if(heroHeartPos.x>=(pos.x+32)){
 			if(this._face!=1){
 				this._face=1;
 				this.changePic(s_enemy_right_fall);
@@ -86,12 +86,26 @@ var Enemy=cc.Sprite.extend({
 		}
 	
 		//dropping
-		
 		if(bg.moveable(pos,1,1,g_GoDown)){
-			this.setPosition(pos.x,pos.y-g_EnemySpeed);
+			this.setPosition(pos.x,pos.y-g_EnemySpeed/2);
 		}else{
 			this._mode=1;
 		}
+	},
+	fire:function(hero,bullets){
+		var pos=this.getPosition();
+		var heroHeartPos=cc.pAdd(hero.getPosition(),cc.p(16,32));
+		var gunPos=pos;
+		if(this._face==0){
+			gunPos=cc.pAdd(pos,cc.p(16,48));
+		}else{
+			gunPos=cc.pAdd(pos,cc.p(48,48));
+		}
+		var shootTrail=cc.pSub(heroHeartPos,gunPos);
+		var speedLength=g_BulletSpeed/cc.pLength(shootTrail);
+		var speed=cc.pMult(shootTrail,speedLength);
+		var bullet=new Bullet(gunPos,speed);
+		bullets.push(bullet);
 	},
 	isKilled:function(blade){
 		var pos=cc.pAdd(this.getPosition(),cc.p(32,32));

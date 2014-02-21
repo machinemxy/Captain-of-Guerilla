@@ -34,8 +34,13 @@ var Body=cc.Sprite.extend({
 		
 		//dropping
 		var pos=this.getPosition();
+		var lowerPos=cc.pAdd(pos,cc.p(0,-2));
 		if(bg.moveable(pos,1,1,g_GoDown)){
-			this.setPosition(pos.x,pos.y-g_EnemySpeed);
+			if(bg.moveable(lowerPos,1,1,g_GoDown)){
+				this.setPosition(pos.x,pos.y-g_EnemySpeed);
+			}else{
+				this.setPosition(pos.x,pos.y-g_EnemySpeed/2);
+			}
 		}
 	}
 });

@@ -81,7 +81,7 @@ var Hero=cc.Sprite.extend({
 			}
 		}
 	},
-	isKilled:function(enemies){
+	isKilled:function(enemies,bullets){
 		var pos=this.getPosition();
 		var heroRect=cc.rect(pos.x,pos.y,32,64);
 		for(x in enemies){
@@ -92,6 +92,11 @@ var Hero=cc.Sprite.extend({
 				hitPoint=cc.pAdd(enemies[x].getPosition(),cc.p(48,48));
 			}
 			if(cc.rectContainsPoint(heroRect,hitPoint)){
+				return true;
+			}
+		}
+		for(x in bullets){
+			if(cc.rectContainsPoint(heroRect,bullets[x].getPosition())){
 				return true;
 			}
 		}
