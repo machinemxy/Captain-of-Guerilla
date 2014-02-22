@@ -40,6 +40,7 @@ var MyLayer = cc.Layer.extend({
 	_lblBest:null,
 	_lblTutorial:null,
 	_lblTheme:null,
+	_lblSubTitle:null,
 	_maxEnemy:3,
 	_playTime:0,
     init:function () {
@@ -90,6 +91,12 @@ var MyLayer = cc.Layer.extend({
 		this._lblTheme.setPosition(512,600);
 		this.addChild(this._lblTheme,g_Label);
 		
+		//init sub title
+		this._lblSubTitle=cc.LabelTTF.create("Cecil Ma\'s","Arial",32);
+		this._lblSubTitle.setAnchorPoint(0,1);
+		this._lblSubTitle.setPosition(156,640);
+		this.addChild(this._lblSubTitle,g_Label);
+		
 		//enable key press
 		this.setKeyboardEnabled(true);
 		
@@ -99,9 +106,49 @@ var MyLayer = cc.Layer.extend({
 		//start running
 		this.schedule(this.update,0);
     },
-	//test use
+	onTouchesBegan:function(pTouch,pEvent){
+		if(!this._isRunning){
+			return;
+		}
+		if(!this._hero._alive){
+			return;
+		}
+		for(x in pTouch){
+			var pos=pTouch[x].getLocation();
+			if(pos.y<=7*32){
+				if(pos.x<=7*32){
+					this._hero.keyDown(cc.KEY.left);
+				}else if(pos.x<=14*32){
+					this._hero.keyDown(cc.KEY.right);
+				}else if(pos.x>=25*32){
+					this._hero.keyDown(cc.KEY.k);
+				}else if(pos.x>=18*32){
+					this._hero.keyDown(cc.KEY.j);
+				}
+			}
+		}
+	},
 	onTouchesEnded:function (pTouch,pEvent){
-        //alert(this._bg.isBlock(pTouch[0].getLocation()));
+		if(!this._isRunning){
+			return;
+		}
+		if(!this._hero._alive){
+			return;
+		}
+		for(x in pTouch){
+			var pos=pTouch[x].getLocation();
+			if(pos.y<=7*32){
+				if(pos.x<=7*32){
+					this._hero.keyUp(cc.KEY.left);
+				}else if(pos.x<=14*32){
+					this._hero.keyUp(cc.KEY.right);
+				}else if(pos.x>=25*32){
+					this._hero.keyUp(cc.KEY.k);
+				}else if(pos.x>=18*32){
+					this._hero.keyUp(cc.KEY.j);
+				}
+			}
+		}
     },
 	onKeyDown:function(e){
 		if(this._hero._alive){
@@ -158,6 +205,7 @@ var MyLayer = cc.Layer.extend({
 		//remove tutorial and theme
 		this._lblTutorial.setVisible(false);
 		this._lblTheme.setVisible(false);
+		this._lblSubTitle.setVisible(false);
 		
 		//init Score
 		this._score=0;
@@ -188,12 +236,16 @@ var MyLayer = cc.Layer.extend({
 		if(this._enemies.length<this._maxEnemy){
 			//enemy on the ground
 			var rand1=Math.random();
-			if(rand1<0.01){
+			if(rand1<0.007){
 				var enemy=new Enemy(1);
 				this.addChild(enemy,g_Enemy);
 				this._enemies.push(enemy);
-			}else if(rand1<0.02){
+			}else if(rand1<0.014){
 				var enemy=new Enemy(2);
+				this.addChild(enemy,g_Enemy);
+				this._enemies.push(enemy);
+			}else if(rand1<0.021){
+				var enemy=new Enemy(3);
 				this.addChild(enemy,g_Enemy);
 				this._enemies.push(enemy);
 			}
@@ -209,6 +261,18 @@ var MyLayer = cc.Layer.extend({
 				if(this._enemies[x].getPosition().y==22*32){
 					this._enemies[x].fire(this._hero,this._bullets);
 					this.addChild(this._bullets[this._bullets.length-1],g_Bullet);
+				}
+			}else{
+				this._enemies[x].action3();
+				//fire
+				if(this._hero.getPosition().x<24*32&&this._enemies[x].getPosition().x==25*32&&this._enemies[x]._aimTime==30){
+					this._enemies[x].fire(this._hero,this._bullets);
+					this.addChild(this._bullets[this._bullets.length-1],g_Bullet);
+				}
+				//retreat
+				if(this._enemies[x].getPosition().x>31*32){
+					this.removeChild(this._enemies[x]);
+					this._enemies.splice(x,1);
 				}
 			}
 		}
@@ -284,6 +348,7 @@ var MyLayer = cc.Layer.extend({
 			this._btnStart.setVisible(true);
 			this._lblTutorial.setVisible(true);
 			this._lblTheme.setVisible(true);
+			this._lblSubTitle.setVisible(true);
 		}
 	},
 	addScore:function(){

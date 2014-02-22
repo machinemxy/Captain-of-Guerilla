@@ -3,6 +3,7 @@ var Enemy=cc.Sprite.extend({
 	_frame:0,
 	_face:0,//0:left 1:right
 	_animation:g_Left1,
+	_aimTime:0,
 	ctor:function(mode){
 		this._super();
 		this._mode=mode;
@@ -12,6 +13,13 @@ var Enemy=cc.Sprite.extend({
 		}else if(this._mode==2){
 			this.setPosition(cc.p(Math.random()*768,768));
 			this.changePic(s_enemy_left_fall);
+		}else if(this._mode==3){
+			if(Math.random()<0.5){
+				this.setPosition(31*32,15*32);
+			}else{
+				this.setPosition(31*32,19*32);
+			}
+			this.changePic(s_enemy_left_1);
 		}
 	},
 	changePic:function(pic){
@@ -90,6 +98,41 @@ var Enemy=cc.Sprite.extend({
 			this.setPosition(pos.x,pos.y-g_EnemySpeed/2);
 		}else{
 			this._mode=1;
+		}
+	},
+	action3:function(){
+		var pos=this.getPosition();
+	
+		//handle frame
+		this._frame++;
+		if(this._frame>=30){
+			this._frame-=30;
+		}
+	
+		if((pos.x==25*32)&&this._aimTime<60){
+			this._aimTime++;
+		}else{
+			//change pic
+			if(this._frame<15){
+				if(this._animation!=g_Left1){
+					this.changePic(s_enemy_left_1);
+					this._animation=g_Left1;
+				}
+			}else{
+				if(this._animation!=g_Left2){
+					this.changePic(s_enemy_left_2);
+					this._animation=g_Left2;
+				}
+			}
+			
+			//move
+			if(this._aimTime==0){
+				//forward
+				this.setPosition(pos.x-g_EnemySpeed/2,pos.y);
+			}else{
+				//back
+				this.setPosition(pos.x+g_EnemySpeed/2,pos.y);
+			}
 		}
 	},
 	fire:function(hero,bullets){
