@@ -80,7 +80,7 @@ var MyLayer = cc.Layer.extend({
 		this.addChild(this._lblBest,g_Label);
 		
 		//init tutorial label
-		this._lblTutorial=cc.LabelTTF.create("A:LEFT D:RIGHT J:ATTACCK K:JUMP","Arial",32);
+		this._lblTutorial=cc.LabelTTF.create("A:LEFT D:RIGHT J:ATTACK K:JUMP","Arial",32);
 		this._lblTutorial.setAnchorPoint(0.5,1);
 		this._lblTutorial.setPosition(512,300);
 		this.addChild(this._lblTutorial,g_Label);
@@ -294,7 +294,7 @@ var MyLayer = cc.Layer.extend({
 		}
 		
 		//check are enemies killed
-		if(this._hero._blade._angle==84){
+		if(this._hero._blade._angle==84||this._hero._blade._angle==96){
 			for(x in this._enemies){
 				if(this._enemies[x].isKilled(this._hero._blade)){
 					//add body
